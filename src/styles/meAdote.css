@@ -1,0 +1,32 @@
+/* cards responsivos básicos */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* para garantir responsividade - use classes utilitárias ou adapte conforme seu CSS */
+@media (min-width: 640px) {
+  .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 768px) {
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* imagens dentro dos cards */
+.pet-card img {
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+/* espaçamentos e responsividade de botões */
+@media (max-width: 640px) {
+  .flex {
+    flex-direction: column;
+  }
+  .flex .btn {
+    width: 100%;
+  }
+}

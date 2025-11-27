@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Pets: leitura pública
+    match /pets/{petId} {
+      allow read: if true;
+      // disallow client create for owner-type (Cloud Function should handle)
+      allow create: if request.resource.data.type == "abandoned";
+      allow update, delete: if false;
+    }
+
+    // Tags: public read, no client writes
+    match /tags/{tagId} {
+      allow read: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // Abandoned: public create/read (anyone can report)
+    match /abandoned/{docId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+
+    // default: deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
