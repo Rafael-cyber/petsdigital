@@ -1,5 +1,4 @@
-// frontend/src/services/petService.js
-import { db } from "../firebaseClient"; // seu arquivo atual parece se chamar firebaseClient
+import { db } from "../services/firebase";
 import {
   collection,
   addDoc,

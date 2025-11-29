@@ -1,42 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../services/firebase";
-import { useParams } from "react-router-dom";
-import QRCode from "react-qr-code";
 import { doc, getDoc } from "firebase/firestore";
+import { useParams } from "react-router-dom";
 import "../styles/pets.css";
 
-export default function PetView() {
+export default function VisitorView() {
   const { id } = useParams();
   const [pet, setPet] = useState(null);
 
   useEffect(() => {
-    async function carregar() {
+    async function load() {
       const snap = await getDoc(doc(db, "pets", id));
       if (snap.exists()) setPet(snap.data());
     }
-    carregar();
+    load();
   }, []);
 
   if (!pet) return <p>Carregando...</p>;
 
-  const url = `https://petsdigital.vercel.app/visitar/${id}`;
-
   return (
     <div className="pets-container">
-      <h1>{pet.nome}</h1>
+      <h1>🐾 TAG do Pet</h1>
+      <h2>{pet.nome}</h2>
 
       <p><b>Raça:</b> {pet.raca}</p>
       <p><b>Descrição:</b> {pet.descricao}</p>
-      <p><b>Contato:</b> {pet.contato}</p>
 
-      <h3>QR Code da TAG</h3>
-
-      <div style={{ background: "white", padding: 10, display: "inline-block" }}>
-        <QRCode value={url} size={180} />
-      </div>
+      <a className="btn" href={`https://wa.me/55${pet.contato}`}>
+        Falar com o dono
+      </a>
 
       <br /><br />
-      <a className="btn" href={url}>Ver como visitante</a>
+
+      <a className="btn" style={{ background: "red" }} href={`/denuncia/${id}`}>
+        Denunciar animal abandonado
+      </a>
     </div>
   );
 }

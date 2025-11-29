@@ -1,58 +1,41 @@
-import { useEffect, useState } from "react";
-import { db } from "../firebase";
-import { auth } from "../firebase";
+import React, { useEffect, useState } from "react";
+import { auth, db } from "../services/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import "../styles/meusPets.css";
+import "../styles/pets.css";
 
 export default function MeusPets() {
   const [pets, setPets] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function carregar() {
       const user = auth.currentUser;
-      if (!user) {
-        setPets([]);
-        setLoading(false);
-        return;
-      }
+      if (!user) return;
 
-      // 🔥 Filtra apenas os pets do usuário logado
       const q = query(
-        collection(db, "petsDonos"),
-        where("dono", "==", user.uid)
+        collection(db, "pets"),
+        where("donoId", "==", user.uid)
       );
 
       const snap = await getDocs(q);
-      const lista = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
+      const lista = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setPets(lista);
-      setLoading(false);
     }
 
     carregar();
   }, []);
 
-  if (loading) return <p>Carregando seus pets...</p>;
-
   return (
-    <div className="meus-pets-container">
-      <h1>Meus Pets</h1>
+    <div className="pets-container">
+      <h1>🐾 Meus Pets</h1>
 
-      {pets.length === 0 && (
-        <p>Você ainda não cadastrou nenhum pet.</p>
-      )}
+      <a className="btn-add" href="/criar-tag">Adicionar Pet</a>
 
       <div className="pets-grid">
-        {pets.map(pet => (
-          <div key={pet.id} className="pet-card">
-            {pet.foto && (
-              <img src={pet.foto} alt={pet.nome} className="pet-foto" />
-            )}
-
-            <h3>{pet.nome}</h3>
-            <p><strong>Espécie:</strong> {pet.especie}</p>
-            <p><strong>Idade:</strong> {pet.idade}</p>
+        {pets.map((p) => (
+          <div key={p.id} className="pet-card">
+            <img src={p.fotoURL} />
+            <h3>{p.nome}</h3>
+            <a className="btn" href={`/pet/${p.id}`}>Ver Tag</a>
           </div>
         ))}
       </div>

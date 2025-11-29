@@ -1,0 +1,20 @@
+.nav {
+  background: orange;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+  font-family: Arial;
+}
+
+.nav a {
+  color: white;
+  margin-left: 12px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.logo {
+  font-size: 22px;
+}

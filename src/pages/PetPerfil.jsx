@@ -1,76 +1,157 @@
 import { useEffect, useState } from "react";
+import { db } from "../services/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { useParams } from "react-router-dom";
-import { getPetById, updatePet, updatePetStatus } from "../services/petService";
-import { auth } from "../firebaseClient";
 
 export default function PetPerfil() {
   const { id } = useParams();
   const [pet, setPet] = useState(null);
-  const [form, setForm] = useState({ nome: "", descricao: "", foto: "" });
 
   useEffect(() => {
-    async function load() {
-      const p = await getPetById(id);
-      const user = auth.currentUser;
+    async function carregar() {
+      const ref = doc(db, "petsDonos", id);
+      const snap = await getDoc(ref);
 
-      if (!p) {
-        alert("Pet não encontrado.");
-        return;
+      if (snap.exists()) {
+        setPet(snap.data());
+      } else {
+        setPet(false);
       }
-
-      if (p.ownerId !== user.uid) {
-        alert("Você não tem permissão para editar este pet.");
-        window.location.href = "/meus-pets";
-        return;
-      }
-
-      setPet(p);
-      setForm({
-        nome: p.nome,
-        descricao: p.descricao,
-        foto: p.foto
-      });
     }
-    load();
+    carregar();
   }, [id]);
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  if (pet === false) {
+    return (
+      <div style={{ padding: 20, textAlign: "center" }}>
+        <h1>Pet não encontrado ❌</h1>
+        <p>Este link pode estar incorreto ou o pet foi removido.</p>
+      </div>
+    );
   }
 
-  async function salvar() {
-    await updatePet(id, form);
-    alert("Atualizado!");
+  if (!pet) {
+    return (
+      <div style={{ padding: 20, textAlign: "center" }}>
+        <h1>Carregando...</h1>
+      </div>
+    );
   }
 
-  async function marcar(status) {
-    await updatePetStatus(id, status);
-    alert("Status atualizado!");
+  function abrirWhatsApp() {
+    const numero = pet.whatsapp.replace(/\D/g, "");
+    const mensagem = encodeURIComponent(`Olá! Encontrei o pet ${pet.nome}.`);
+    window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
   }
 
-  if (!pet) return <p>Carregando...</p>;
+  function ligar() {
+    const numero = pet.whatsapp.replace(/\D/g, "");
+    window.open(`tel:${numero}`);
+  }
 
   return (
-    <div>
-      <h1>Editar Pet</h1>
+    <div style={{ padding: 20, maxWidth: 500, margin: "0 auto" }}>
+      <h1 style={{ textAlign: "center", fontSize: 28, fontWeight: 700 }}>
+        {pet.nome}
+      </h1>
 
-      <label>Nome:</label>
-      <input name="nome" value={form.nome} onChange={handleChange} />
+      <div
+        style={{
+          marginTop: 25,
+          padding: 20,
+          background: "#fff",
+          borderRadius: 16,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+        }}
+      >
+        <p style={{ fontSize: 18 }}>
+          <strong>🐾 Nome:</strong> {pet.nome}
+        </p>
+        <p style={{ fontSize: 18 }}>
+          <strong>🎂 Idade:</strong> {pet.idade}
+        </p>
+        <p style={{ fontSize: 18 }}>
+          <strong>🐶 Raça:</strong> {pet.raca}
+        </p>
+        <p style={{ fontSize: 18 }}>
+          <strong>👤 Dono:</strong> {pet.dono}
+        </p>
+        <p style={{ fontSize: 18 }}>
+          <strong>📱 Contato:</strong> {pet.whatsapp}
+        </p>
 
-      <label>Descrição:</label>
-      <textarea name="descricao" value={form.descricao} onChange={handleChange} />
+        <button
+          onClick={abrirWhatsApp}
+          style={{
+            marginTop: 20,
+            width: "100%",
+            padding: 14,
+            background: "#25D366",
+            border: "none",
+            color: "white",
+            borderRadius: 10,
+            fontSize: 18,
+            fontWeight: "bold",
+            display: "flex",
+            justifyContent: "center",
+            gap: 10
+          }}
+        >
+          📲 Chamar no WhatsApp
+        </button>
 
-      <label>Foto URL:</label>
-      <input name="foto" value={form.foto} onChange={handleChange} />
+        <button
+          onClick={ligar}
+          style={{
+            marginTop: 12,
+            width: "100%",
+            padding: 14,
+            background: "#1576FF",
+            border: "none",
+            color: "white",
+            borderRadius: 10,
+            fontSize: 18,
+            fontWeight: "bold",
+            display: "flex",
+            justifyContent: "center",
+            gap: 10
+          }}
+        >
+          📞 Ligar para o dono
+        </button>
 
-      <button onClick={salvar}>Salvar</button>
+        <button
+          disabled
+          style={{
+            marginTop: 12,
+            width: "100%",
+            padding: 14,
+            background: "#ff7f00",
+            border: "none",
+            color: "white",
+            borderRadius: 10,
+            fontSize: 18,
+            opacity: 0.6,
+            fontWeight: "bold",
+            display: "flex",
+            justifyContent: "center",
+            gap: 10
+          }}
+        >
+          📍 Informar localização (em manutenção)
+        </button>
+      </div>
 
-      <hr />
-
-      <h3>Status</h3>
-      <button onClick={() => marcar("adotado")}>Marcar como Adotado</button>
-      <button onClick={() => marcar("faleceu")}>Marcar como Falecido</button>
-      <button onClick={() => marcar("disponivel")}>Disponível novamente</button>
+      <p
+        style={{
+          marginTop: 20,
+          textAlign: "center",
+          fontSize: 14,
+          opacity: 0.7
+        }}
+      >
+        Esta página foi aberta através da TAG NFC do pet.
+      </p>
     </div>
   );
 }
