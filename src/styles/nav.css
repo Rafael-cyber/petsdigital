@@ -1,0 +1,21 @@
+.nav {
+  background: linear-gradient(90deg, #ff8c00, #ffa733);
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  font-family: "Poppins", Arial, sans-serif;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+}
+
+.logo { font-size:20px; color:white; font-weight:700}
+
+.nav-links{display:flex;gap:12px;align-items:center}
+
+.nav a{ color:white; font-weight:600; padding:8px 10px; border-radius:8px}
+
+.user-badge{background:rgba(255,255,255,0.12);padding:6px 10px;border-radius:10px;color:white;font-weight:600}
+
+.btn-logout{background:transparent;border:1px solid rgba(255,255,255,0.18);color:white;padding:6px 10px;border-radius:10px;cursor:pointer}
